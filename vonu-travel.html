@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vonu-Travel — Ferry Booking Fiji</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean: #0b2e4a;
+    --deep: #071e30;
+    --mid: #0e3d5c;
+    --coral: #ff5c3a;
+    --coral-light: #ff7a5c;
+    --gold: #f5c842;
+    --foam: #e8f4f8;
+    --mist: #b8d4e0;
+    --white: #f9fbfc;
+    --text: #d4eaf5;
+    --text-dim: #7eabc5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--deep);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated ocean background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 10% 80%, rgba(11,46,74,0.9) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 90% 20%, rgba(14,61,92,0.6) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 80% at 50% 100%, rgba(7,30,48,1) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Wave lines */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 300px;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 28px,
+      rgba(255,255,255,0.02) 28px,
+      rgba(255,255,255,0.02) 30px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+
+  .logo span {
+    color: var(--coral);
+  }
+
+  .nav-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .nav-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .nav-icon:hover { background: rgba(255,255,255,0.12); }
+
+  /* ── HERO SEARCH ── */
+  .hero {
+    padding: 28px 24px 20px;
+  }
+
+  .hero-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 6px;
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    line-height: 1.15;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  /* Route Card */
+  .route-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 6px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
+  }
+
+  .route-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .port-field {
+    flex: 1;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .port-field::placeholder { color: var(--text-dim); font-weight: 400; font-family: 'DM Sans', sans-serif; }
+
+  .swap-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--coral);
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.3s, background 0.2s;
+    box-shadow: 0 4px 16px rgba(255,92,58,0.4);
+  }
+
+  .swap-btn:hover { transform: rotate(180deg); background: var(--coral-light); }
+
+  .route-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 4px 14px;
+  }
+
+  .date-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .date-pill {
+    flex: 1;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+  }
+
+  .date-pill span { font-size: 0.75rem; color: var(--text-dim); display: block; }
+  .date-pill strong { font-size: 0.95rem; color: var(--white); display: block; }
+
+  .search-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--coral);
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(255,92,58,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .search-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,92,58,0.5); }
+  .search-btn:active { transform: translateY(0); }
+
+  /* ── RESULTS ── */
+  .section {
+    padding: 20px 24px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--white);
+  }
+
+  .section-meta {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  /* Ferry Result Card */
+  .ferry-card {
+    background: rgba(14,61,92,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ferry-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--coral);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .ferry-card:hover { 
+    border-color: rgba(255,92,58,0.3); 
+    transform: translateY(-2px);
+    background: rgba(14,61,92,0.6);
+  }
+
+  .ferry-card:hover::before { opacity: 1; }
+
+  .ferry-card.selected {
+    border-color: var(--coral);
+    background: rgba(255,92,58,0.1);
+  }
+
+  .ferry-card.selected::before { opacity: 1; }
+
+  .ferry-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .operator-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .operator-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .operator-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--white);
+  }
+
+  .ship-name {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .price-block {
+    text-align: right;
+  }
+
+  .price-from {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .price-amount {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .price-currency {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-dim);
+  }
+
+  .ferry-times {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 14px;
+  }
+
+  .time-block {
+    flex: 0 0 auto;
+  }
+
+  .time-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--white);
+  }
+
+  .time-port {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .route-line {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0 12px;
+    gap: 4px;
+  }
+
+  .duration-label {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .line-track {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .line-track::before, .line-track::after {
+    content: '';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--coral);
+  }
+
+  .line-track::before { left: 0; }
+  .line-track::after { right: 0; }
+
+  .ferry-classes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .class-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .class-pill:hover, .class-pill.active {
+    border-color: var(--coral);
+    color: var(--coral);
+    background: rgba(255,92,58,0.08);
+  }
+
+  .class-pill .pill-price {
+    font-weight: 700;
+    color: var(--white);
+    margin-left: 4px;
+  }
+
+  .class-pill.active .pill-price { color: var(--coral); }
+
+  /* ── BOOKING PANEL ── */
+  .booking-panel {
+    margin: 0 24px 20px;
+    background: rgba(14,61,92,0.5);
+    border: 1px solid rgba(255,92,58,0.25);
+    border-radius: 18px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .booking-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .input-group {
+    margin-bottom: 12px;
+  }
+
+  .input-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: rgba(255,92,58,0.5); }
+  .input-field::placeholder { color: var(--text-dim); }
+
+  .pay-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, #00a550 0%, #00c96a 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 6px 20px rgba(0,165,80,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .pay-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,165,80,0.45); }
+
+  .mpai-logo {
+    background: white;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #00a550;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── TICKET MODAL ── */
+  .ticket-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7,30,48,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .ticket-overlay.active { display: flex; }
+
+  .ticket-sheet {
+    background: var(--mid);
+    border-radius: 24px 24px 0 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-bottom: none;
+    width: 100%;
+    max-width: 480px;
+    padding: 28px 24px 40px;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .ticket-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 24px;
+  }
+
+  .ticket-success {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .success-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(0,165,80,0.15);
+    border: 2px solid #00a550;
+    margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .success-sub {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  .ticket-body {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .ticket-header {
+    background: var(--coral);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ticket-header-left .tk-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .ticket-header-left .tk-route {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+  }
+
+  .ticket-ref {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: white;
+    letter-spacing: 0.08em;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .ticket-details {
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px 8px;
+  }
+
+  .td-item .td-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+
+  .td-item .td-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--white);
+  }
+
+  .ticket-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 20px;
+    position: relative;
+  }
+
+  .ticket-divider::before, .ticket-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--mid);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .ticket-divider::before { left: -10px; }
+  .ticket-divider::after { right: -10px; }
+
+  .qr-section {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .qr-box {
+    width: 90px; height: 90px;
+    background: white;
+    border-radius: 10px;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+
+  .qr-box canvas, .qr-inner {
+    width: 100%; height: 100%;
+    background: 
+      repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 0 0 / 8px 8px,
+      repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 4px 4px / 8px 8px;
+    border-radius: 3px;
+  }
+
+  .qr-info .qr-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .qr-info .qr-class {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(255,200,66,0.15);
+    border: 1px solid rgba(255,200,66,0.3);
+    color: var(--gold);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    margin-bottom: 6px;
+  }
+
+  .qr-info .qr-hint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .ticket-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .action-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+
+  .close-ticket {
+    margin-top: 12px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--coral);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,92,58,0.3);
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: rgba(7,30,48,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    z-index: 10;
+  }
+
+  .nav-tab {
+    flex: 1;
+    padding: 12px 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    transition: color 0.2s;
+  }
+
+  .nav-tab.active { color: var(--coral); }
+
+  .nav-tab .tab-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  /* Payment notification */
+  .mpai-notification {
+    display: none;
+    position: fixed;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(14,61,92,0.95);
+    border: 1px solid rgba(0,165,80,0.4);
+    border-radius: 16px;
+    padding: 16px 20px;
+    width: calc(100% - 40px);
+    max-width: 440px;
+    z-index: 200;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    animation: notifIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes notifIn {
+    from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+  }
+
+  .mpai-notification.active { display: block; }
+
+  .notif-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .notif-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: #00a550;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .notif-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--white);
+  }
+
+  .notif-sub {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .notif-amount {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .notif-detail {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .pin-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .pin-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .pin-dot.filled {
+    background: #00a550;
+    border-color: #00a550;
+  }
+
+  .notif-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  .notif-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .notif-btn:hover { opacity: 0.85; }
+  .notif-decline { background: rgba(255,255,255,0.08); color: var(--text-dim); }
+  .notif-approve { background: #00a550; color: white; box-shadow: 0 4px 14px rgba(0,165,80,0.4); }
+
+  /* Misc */
+  .pb-nav { padding-bottom: 80px; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: rgba(245,200,66,0.12);
+    border: 1px solid rgba(245,200,66,0.25);
+    color: var(--gold);
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .tag.green {
+    background: rgba(0,165,80,0.1);
+    border-color: rgba(0,165,80,0.25);
+    color: #4dd882;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app pb-nav">
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Vonu<span>-</span>Travel</div>
+    <div class="nav-right">
+      <div class="nav-icon">🔔</div>
+      <div class="nav-icon">👤</div>
+    </div>
+  </nav>
+
+  <!-- HERO SEARCH -->
+  <div class="hero">
+    <p class="hero-label">Plan your journey</p>
+    <h1 class="hero-title">Where are you<br>headed?</h1>
+
+    <div class="route-card">
+      <div class="route-row">
+        <input class="port-field" type="text" value="Suva" placeholder="From" id="origin" />
+      </div>
+      <div class="route-divider"></div>
+      <div class="route-row" style="align-items:center; justify-content:space-between;">
+        <input class="port-field" type="text" value="Savusavu" placeholder="To" id="dest" />
+        <button class="swap-btn" onclick="swapPorts()" title="Swap">⇅</button>
+      </div>
+    </div>
+
+    <div class="date-row">
+      <div class="date-pill">
+        <span>📅</span>
+        <div>
+          <span>Departure</span>
+          <strong>Wed, 4 Mar 2026</strong>
+        </div>
+      </div>
+      <div class="date-pill" style="flex: 0 0 auto; padding: 12px 16px;">
+        <div>
+          <span>Passengers</span>
+          <strong>1 Adult</strong>
+        </div>
+      </div>
+    </div>
+
+    <button class="search-btn" onclick="showResults()">Search Ferries →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section" id="results" style="display:none">
+    <div class="section-header">
+      <span class="section-title">Available Ferries</span>
+      <span class="section-meta">2 routes found</span>
+    </div>
+
+    <!-- Ferry 1 -->
+    <div class="ferry-card" id="card1" onclick="selectFerry(1)">
+      <div class="ferry-top">
+        <div class="operator-badge">
+          <div class="operator-icon">⚓</div>
+          <div>
+            <div class="operator-name">Goundar Shipping</div>
+            <div class="ship-name">MV Cagimaira II</div>
+          </div>
+        </div>
+        <div class="price-block">
+          <div class="price-from">From</div>
+          <div class="price-amount">$45 <span class="price-currency">FJD</span></div>
+        </div>
+      </div>
+
+      <div class="ferry-times">
+        <div class="time-block">
+          <div class="time-value">10:00</div>
+          <div class="time-port">Suva Wharf</div>
+        </div>
+        <div class="route-line">
+          <div class="duration-label">~14 hrs</div>
+          <div class="line-track"></div>
+        </div>
+        <div class="time-block" style="text-align:right">
+          <div class="time-value">00:00</div>
+          <div class="time-port">Savusavu</div>
+        </div>
+      </div>
+
+      <div class="ferry-classes">
+        <div class="class-pill active" onclick="event.stopPropagation(); setClass(this, 1, 'Economy')">Economy <span class="pill-price">$45</span></div>
+        <div class="class-pill" onclick="event.stopPropagation(); setClass(this, 1, 'Cabin')">Cabin <span class="pill-price">$90</span></div>
+        <span class="tag green">⚡ Available</span>
+      </div>
+    </div>
+
+    <!-- Ferry 2 -->
+    <div class="ferry-card" id="card2" onclick="selectFerry(2)">
+      <div class="ferry-top">
+        <div class="operator-badge">
+          <div class="operator-icon">🚢</div>
+          <div>
+            <div class="operator-name">Patterson Brothers</div>
+            <div class="ship-name">MV Sinu-i-Wasa</div>
+          </div>
+        </div>
+        <div class="price-block">
+          <div class="price-from">From</div>
+          <div class="price-amount">$39 <span class="price-currency">FJD</span></div>
+        </div>
+      </div>
+
+      <div class="ferry-times">
+        <div class="time-block">
+          <div class="time-value">16:00</div>
+          <div class="time-port">Suva Wharf</div>
+        </div>
+        <div class="route-line">
+          <div class="duration-label">~16 hrs</div>
+          <div class="line-track"></div>
+        </div>
+        <div class="time-block" style="text-align:right">
+          <div class="time-value">08:00</div>
+          <div class="time-port">Savusavu</div>
+        </div>
+      </div>
+
+      <div class="ferry-classes">
+        <div class="class-pill active" onclick="event.stopPropagation(); setClass(this, 2, 'Economy')">Economy <span class="pill-price">$39</span></div>
+        <div class="class-pill" onclick="event.stopPropagation(); setClass(this, 2, 'Cabin')">Cabin <span class="pill-price">$78</span></div>
+        <span class="tag">🔥 Popular</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING FORM -->
+  <div class="booking-panel" id="booking-panel" style="display:none">
+    <div class="booking-title">Passenger Details</div>
+    <div class="input-group">
+      <label class="input-label">Full Name (as on ID)</label>
+      <input class="input-field" type="text" placeholder="Siosaia Tuilagi" id="pax-name" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">ID / Passport Number</label>
+      <input class="input-field" type="text" placeholder="FJ-123456789" id="pax-id" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">Mobile Number</label>
+      <input class="input-field" type="tel" placeholder="+679 7XX XXXX" id="pax-phone" />
+    </div>
+    <button class="pay-btn" onclick="initiatePayment()">
+      <span class="mpai-logo">M-PAiSA</span>
+      Pay &amp; Confirm Booking
+    </button>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-tab active">
+    <span class="tab-icon">🔍</span>
+    Search
+  </button>
+  <button class="nav-tab">
+    <span class="tab-icon">🎫</span>
+    My Trips
+  </button>
+  <button class="nav-tab">
+    <span class="tab-icon">🕒</span>
+    History
+  </button>
+  <button class="nav-tab">
+    <span class="tab-icon">⚙️</span>
+    Settings
+  </button>
+</div>
+
+<!-- M-PAISA NOTIFICATION -->
+<div class="mpai-notification" id="mpai-notif">
+  <div class="notif-header">
+    <div class="notif-icon">💳</div>
+    <div>
+      <div class="notif-title">M-PAiSA Payment Request</div>
+      <div class="notif-sub">Vonu-Travel · Secure Payment</div>
+    </div>
+  </div>
+  <div class="notif-amount" id="notif-amount">FJD 45.00</div>
+  <div class="notif-detail" id="notif-detail">Suva → Savusavu · Economy Class<br>MV Cagimaira II · Wed 4 Mar 2026</div>
+  <div class="pin-row">
+    <div class="pin-dot" id="p1"></div>
+    <div class="pin-dot" id="p2"></div>
+    <div class="pin-dot" id="p3"></div>
+    <div class="pin-dot" id="p4"></div>
+  </div>
+  <div class="notif-btns">
+    <button class="notif-btn notif-decline" onclick="closeNotif()">Decline</button>
+    <button class="notif-btn notif-approve" onclick="approvePayment()">Enter PIN & Approve</button>
+  </div>
+</div>
+
+<!-- TICKET MODAL -->
+<div class="ticket-overlay" id="ticket-overlay">
+  <div class="ticket-sheet">
+    <div class="ticket-handle"></div>
+    <div class="ticket-success">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Booking Confirmed!</div>
+      <div class="success-sub">Ticket sent to your mobile via SMS</div>
+    </div>
+
+    <div class="ticket-body">
+      <div class="ticket-header">
+        <div class="ticket-header-left">
+          <div class="tk-label">E-Ticket</div>
+          <div class="tk-route" id="tk-route">Suva → Savusavu</div>
+        </div>
+        <div class="ticket-ref" id="tk-ref">VT-8821</div>
+      </div>
+
+      <div class="ticket-details">
+        <div class="td-item">
+          <div class="td-label">Passenger</div>
+          <div class="td-value" id="tk-name">Siosaia T.</div>
+        </div>
+        <div class="td-item">
+          <div class="td-label">Date</div>
+          <div class="td-value">4 Mar 2026</div>
+        </div>
+        <div class="td-item">
+          <div class="td-label">Departs</div>
+          <div class="td-value" id="tk-departs">10:00</div>
+        </div>
+        <div class="td-item">
+          <div class="td-label">Vessel</div>
+          <div class="td-value" id="tk-vessel">MV Cagimaira II</div>
+        </div>
+        <div class="td-item">
+          <div class="td-label">Class</div>
+          <div class="td-value" id="tk-class">Economy</div>
+        </div>
+        <div class="td-item">
+          <div class="td-label">Paid</div>
+          <div class="td-value" id="tk-paid">FJD 45</div>
+        </div>
+      </div>
+
+      <div class="ticket-divider"></div>
+
+      <div class="qr-section">
+        <div class="qr-box">
+          <div class="qr-inner"></div>
+        </div>
+        <div class="qr-info">
+          <div class="qr-name" id="qr-name">Siosaia Tuilagi</div>
+          <div class="qr-class" id="qr-class">Economy Class</div>
+          <div class="qr-hint">Show this QR code to the ship's purser at boarding.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticket-actions">
+      <button class="action-btn">📥 Save to Phone</button>
+      <button class="action-btn">📤 Share Ticket</button>
+    </div>
+
+    <button class="close-ticket" onclick="closeTicket()">Done — View My Trips</button>
+  </div>
+</div>
+
+<script>
+  let selectedFerry = null;
+  let selectedClass = { 1: 'Economy', 2: 'Economy' };
+  let classPrices = {
+    1: { Economy: 45, Cabin: 90 },
+    2: { Economy: 39, Cabin: 78 }
+  };
+  let ferryData = {
+    1: { name: 'Goundar Shipping', ship: 'MV Cagimaira II', departs: '10:00' },
+    2: { name: 'Patterson Brothers', ship: 'MV Sinu-i-Wasa', departs: '16:00' }
+  };
+
+  function swapPorts() {
+    const o = document.getElementById('origin');
+    const d = document.getElementById('dest');
+    [o.value, d.value] = [d.value, o.value];
+  }
+
+  function showResults() {
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setClass(el, ferryId, cls) {
+    selectedClass[ferryId] = cls;
+    const card = document.getElementById('card' + ferryId);
+    card.querySelectorAll('.class-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function selectFerry(id) {
+    selectedFerry = id;
+    document.querySelectorAll('.ferry-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card' + id).classList.add('selected');
+
+    const panel = document.getElementById('booking-panel');
+    panel.style.display = 'block';
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  function initiatePayment() {
+    const name = document.getElementById('pax-name').value || 'Siosaia Tuilagi';
+    const f = ferryData[selectedFerry];
+    const cls = selectedClass[selectedFerry];
+    const price = classPrices[selectedFerry][cls];
+
+    document.getElementById('notif-amount').textContent = 'FJD ' + price + '.00';
+    document.getElementById('notif-detail').innerHTML =
+      `Suva → Savusavu · ${cls} Class<br>${f.ship} · Wed 4 Mar 2026`;
+
+    document.getElementById('mpai-notif').classList.add('active');
+  }
+
+  function closeNotif() {
+    document.getElementById('mpai-notif').classList.remove('active');
+    // reset pins
+    [1,2,3,4].forEach(n => document.getElementById('p'+n).classList.remove('filled'));
+  }
+
+  function approvePayment() {
+    // Animate PIN dots
+    let i = 1;
+    const interval = setInterval(() => {
+      document.getElementById('p'+i).classList.add('filled');
+      i++;
+      if (i > 4) {
+        clearInterval(interval);
+        setTimeout(() => {
+          closeNotif();
+          showTicket();
+        }, 400);
+      }
+    }, 200);
+  }
+
+  function showTicket() {
+    const name = document.getElementById('pax-name').value || 'Siosaia Tuilagi';
+    const f = ferryData[selectedFerry];
+    const cls = selectedClass[selectedFerry];
+    const price = classPrices[selectedFerry][cls];
+    const shortName = name.split(' ')[0] + (name.split(' ')[1] ? ' ' + name.split(' ')[1][0] + '.' : '');
+
+    document.getElementById('tk-route').textContent = 'Suva → Savusavu';
+    document.getElementById('tk-ref').textContent = 'VT-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('tk-name').textContent = shortName;
+    document.getElementById('tk-departs').textContent = f.departs;
+    document.getElementById('tk-vessel').textContent = f.ship;
+    document.getElementById('tk-class').textContent = cls;
+    document.getElementById('tk-paid').textContent = 'FJD ' + price;
+    document.getElementById('qr-name').textContent = name;
+    document.getElementById('qr-class').textContent = cls + ' Class';
+
+    document.getElementById('ticket-overlay').classList.add('active');
+  }
+
+  function closeTicket() {
+    document.getElementById('ticket-overlay').classList.remove('active');
+  }
+</script>
+</body>
+</html>
