@@ -1,6 +1,16 @@
 'use client'
 import { Booking } from '@/lib/routes'
-export default function MyTripsScreen({trips}:{trips:Booking[]}) {
+export default function MyTripsScreen({trips,user}:{trips:Booking[];user:any}) {
+  if(!user) return (
+    <div style={{minHeight:'100vh',background:'#071e30',fontFamily:'DM Sans,sans-serif',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:'3rem',marginBottom:16}}>🔐</div>
+        <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.2rem',color:'white',marginBottom:8}}>Sign in to see your trips</div>
+        <p style={{color:'#7eabc5',fontSize:'0.85rem',marginBottom:24}}>Your bookings are saved to your account</p>
+        <a href="/login" style={{display:'inline-block',padding:'13px 32px',background:'#ff5c3a',borderRadius:14,color:'white',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.95rem',textDecoration:'none',boxShadow:'0 6px 24px rgba(255,92,58,0.4)'}}>Sign In</a>
+      </div>
+    </div>
+  )
   return (
     <div style={{minHeight:'100vh',background:'#071e30',fontFamily:'DM Sans,sans-serif',paddingBottom:100}}>
       <div style={{padding:'20px 24px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>

@@ -1,19 +1,22 @@
 'use client'
 import { PORTS } from '@/lib/routes'
-interface Props {origin:string;setOrigin:(v:string)=>void;destination:string;setDestination:(v:string)=>void;date:string;onSearch:()=>void}
-export default function SearchScreen({origin,setOrigin,destination,setDestination,date,onSearch}:Props) {
+interface Props {origin:string;setOrigin:(v:string)=>void;destination:string;setDestination:(v:string)=>void;date:string;onSearch:()=>void;user:any}
+export default function SearchScreen({origin,setOrigin,destination,setDestination,date,onSearch,user}:Props) {
   function swap(){const t=origin;setOrigin(destination);setDestination(t)}
   const sel={flex:1,padding:'12px 14px',background:'transparent',border:'none',outline:'none',color:'white',fontFamily:'Syne,sans-serif',fontWeight:600,fontSize:'1rem',cursor:'pointer',appearance:'none' as const}
   return (
     <div style={{minHeight:'100vh',background:'#071e30',fontFamily:'DM Sans,sans-serif',paddingBottom:100}}>
       <nav style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 24px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
         <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:'white'}}>Vonu<span style={{color:'#ff5c3a'}}>-</span>Travel</div>
-        <div style={{display:'flex',gap:10}}>
-          {['🔔'].map((icon,i)=><div key={i} style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer'}}>{icon}</div>)}
-<a href="/login" style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer',textDecoration:'none'}}>👤</a>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}>
+          <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer'}}>🔔</div>
+          <a href="/login" style={{width:36,height:36,borderRadius:'50%',background:user?'rgba(255,92,58,0.2)':'rgba(255,255,255,0.06)',border:`1px solid ${user?'rgba(255,92,58,0.5)':'rgba(255,255,255,0.1)'}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer',textDecoration:'none'}}>
+            {user?'✓':'👤'}
+          </a>
         </div>
       </nav>
       <div style={{padding:'28px 24px 20px'}}>
+        {user&&<div style={{background:'rgba(0,165,80,0.08)',border:'1px solid rgba(0,165,80,0.2)',borderRadius:10,padding:'8px 14px',marginBottom:16,fontSize:'0.8rem',color:'#4dd882'}}>👋 Welcome back, {user.email.split('@')[0]}!</div>}
         <p style={{fontSize:'0.7rem',fontWeight:500,letterSpacing:'0.12em',textTransform:'uppercase',color:'#ff5c3a',marginBottom:6}}>Plan your journey</p>
         <h1 style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.7rem',lineHeight:1.15,color:'white',marginBottom:24}}>Where are you<br/>headed?</h1>
         <div style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:18,padding:6,marginBottom:12}}>
