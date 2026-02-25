@@ -9,7 +9,8 @@ export default function SearchScreen({origin,setOrigin,destination,setDestinatio
       <nav style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 24px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
         <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:'white'}}>Vonu<span style={{color:'#ff5c3a'}}>-</span>Travel</div>
         <div style={{display:'flex',gap:10}}>
-          {['🔔','👤'].map((icon,i)=><div key={i} style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer'}}>{icon}</div>)}
+          {['🔔'].map((icon,i)=><div key={i} style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer'}}>{icon}</div>)}
+<a href="/login" style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer',textDecoration:'none'}}>👤</a>
         </div>
       </nav>
       <div style={{padding:'28px 24px 20px'}}>
