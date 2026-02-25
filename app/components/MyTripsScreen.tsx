@@ -1,41 +1,85 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { Booking } from '@/lib/routes'
-export default function MyTripsScreen({trips,user}:{trips:Booking[];user:any}) {
+
+function Countdown({departureDateTime}:{departureDateTime:string}) {
+  const [timeLeft,setTimeLeft]=useState('')
+  const [urgent,setUrgent]=useState(false)
+  useEffect(()=>{
+    function update(){
+      const diff=new Date(departureDateTime).getTime()-Date.now()
+      if(diff<=0){setTimeLeft('Departed');return}
+      const days=Math.floor(diff/86400000)
+      const hrs=Math.floor((diff%86400000)/3600000)
+      const mins=Math.floor((diff%3600000)/60000)
+      const secs=Math.floor((diff%60000)/1000)
+      setUrgent(diff<3600000)
+      if(days>0) setTimeLeft(`${days}d ${hrs}h ${mins}m`)
+      else if(hrs>0) setTimeLeft(`${hrs}h ${mins}m ${secs}s`)
+      else setTimeLeft(`${mins}m ${secs}s`)
+    }
+    update()
+    const iv=setInterval(update,1000)
+    return()=>clearInterval(iv)
+  },[departureDateTime])
+  if(!timeLeft) return null
+  return (
+    <div style={{marginTop:10,padding:'8px 12px',borderRadius:10,background:urgent?'rgba(255,92,58,0.12)':'rgba(245,200,66,0.08)',border:`1px solid ${urgent?'rgba(255,92,58,0.3)':'rgba(245,200,66,0.2)'}`,display:'flex',alignItems:'center',gap:8}}>
+      <span style={{fontSize:'0.9rem'}}>{urgent?'🚨':'⏱️'}</span>
+      <div>
+        <div style={{fontSize:'0.68rem',textTransform:'uppercase',letterSpacing:'0.08em',color:urgent?'#ff7a5c':'#f5c842'}}>Departing in</div>
+        <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.95rem',color:urgent?'#ff5c3a':'#f5c842'}}>{timeLeft}</div>
+      </div>
+    </div>
+  )
+}
+
+export default function MyTripsScreen({trips,user,theme}:{trips:Booking[];user:any;theme:'dark'|'light'}) {
+  const dark=theme==='dark'
+  const bg=dark?'#071e30':'#f0f4f8'
+  const card=dark?'rgba(14,61,92,0.4)':'rgba(255,255,255,0.9)'
+  const border=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)'
+  const text=dark?'white':'#1a2e3b'
+  const sub=dark?'#7eabc5':'#5a7a8a'
+
   if(!user) return (
-    <div style={{minHeight:'100vh',background:'#071e30',fontFamily:'DM Sans,sans-serif',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+    <div style={{minHeight:'100vh',background:bg,fontFamily:'DM Sans,sans-serif',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
       <div style={{textAlign:'center'}}>
         <div style={{fontSize:'3rem',marginBottom:16}}>🔐</div>
-        <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.2rem',color:'white',marginBottom:8}}>Sign in to see your trips</div>
-        <p style={{color:'#7eabc5',fontSize:'0.85rem',marginBottom:24}}>Your bookings are saved to your account</p>
+        <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.2rem',color:text,marginBottom:8}}>Sign in to see your trips</div>
+        <p style={{color:sub,fontSize:'0.85rem',marginBottom:24}}>Your bookings are saved to your account</p>
         <a href="/login" style={{display:'inline-block',padding:'13px 32px',background:'#ff5c3a',borderRadius:14,color:'white',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.95rem',textDecoration:'none',boxShadow:'0 6px 24px rgba(255,92,58,0.4)'}}>Sign In</a>
       </div>
     </div>
   )
+
   return (
-    <div style={{minHeight:'100vh',background:'#071e30',fontFamily:'DM Sans,sans-serif',paddingBottom:100}}>
-      <div style={{padding:'20px 24px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-        <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:'white'}}>My Trips</div>
-        <div style={{fontSize:'0.78rem',color:'#7eabc5'}}>{trips.length} booking{trips.length!==1?'s':''}</div>
+    <div style={{minHeight:'100vh',background:bg,fontFamily:'DM Sans,sans-serif',paddingBottom:100}}>
+      <div style={{padding:'20px 24px',borderBottom:`1px solid ${border}`}}>
+        <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:text}}>My Trips</div>
+        <div style={{fontSize:'0.78rem',color:sub}}>{trips.length} upcoming booking{trips.length!==1?'s':''}</div>
       </div>
       <div style={{padding:'20px 24px'}}>
         {trips.length===0?(
-          <div style={{textAlign:'center',padding:'80px 0',color:'#7eabc5'}}>
+          <div style={{textAlign:'center',padding:'80px 0',color:sub}}>
             <div style={{fontSize:'3rem',marginBottom:12}}>🎫</div>
-            <p>No trips booked yet.</p>
+            <p style={{fontWeight:600,color:text}}>No upcoming trips</p>
             <p style={{fontSize:'0.85rem',marginTop:6}}>Search for a ferry to get started.</p>
           </div>
         ):trips.map(b=>(
-          <div key={b.ref} style={{background:'rgba(14,61,92,0.4)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:16,padding:16,marginBottom:12}}>
+          <div key={b.ref} style={{background:card,border:`1px solid ${border}`,borderRadius:16,padding:16,marginBottom:12,boxShadow:dark?'none':'0 2px 12px rgba(0,0,0,0.06)'}}>
             <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-              <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,color:'white'}}>{b.origin} → {b.destination}</div>
-              <div style={{fontSize:'0.75rem',color:'#4dd882',background:'rgba(0,165,80,0.1)',padding:'2px 8px',borderRadius:10}}>Confirmed</div>
+              <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,color:text,fontSize:'1rem'}}>{b.origin} → {b.destination}</div>
+              <div style={{fontSize:'0.75rem',color:'#4dd882',background:'rgba(0,165,80,0.1)',padding:'2px 10px',borderRadius:10,border:'1px solid rgba(0,165,80,0.2)'}}>Confirmed</div>
             </div>
-            <div style={{fontSize:'0.82rem',color:'#7eabc5',marginBottom:4}}>{b.ferry.ship} · {b.date}</div>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div style={{fontSize:'0.8rem',color:'#b8d4e0'}}>{b.selectedClass} · {b.ferry.departs} departure</div>
+            <div style={{fontSize:'0.82rem',color:sub,marginBottom:2}}>{b.ferry.ship} · {b.date}</div>
+            <div style={{fontSize:'0.82rem',color:sub,marginBottom:4}}>{b.selectedClass} · Departs {b.ferry.departs}</div>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+              <div style={{fontSize:'0.78rem',color:sub}}>{b.passengers?.adults||1} Adult{(b.passengers?.adults||1)>1?'s':''}{b.passengers?.children?`, ${b.passengers.children} Child`:''}{b.passengers?.infants?`, ${b.passengers.infants} Infant`:''}</div>
               <div style={{fontFamily:'Syne,sans-serif',fontWeight:700,color:'#f5c842',fontSize:'0.9rem'}}>FJD {b.price}</div>
             </div>
-            <div style={{marginTop:8,fontSize:'0.72rem',color:'#7eabc5',letterSpacing:'0.06em'}}>REF: {b.ref}</div>
+            <div style={{fontSize:'0.72rem',color:sub,letterSpacing:'0.06em',marginBottom:4}}>REF: {b.ref}</div>
+            {b.departureDateTime&&<Countdown departureDateTime={b.departureDateTime}/>}
           </div>
         ))}
       </div>
