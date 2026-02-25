@@ -1,10 +1,7 @@
-import withPWA from 'next-pwa'
+import type { NextConfig } from 'next'
 
-const config = withPWA({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-})
+const nextConfig: NextConfig = {
+  turbopack: {},
+}
 
-export default config({
-  eslint: { ignoreDuringBuilds: true },
-})
+export default nextConfig
