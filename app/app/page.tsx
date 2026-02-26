@@ -49,7 +49,7 @@ export default function Home() {
         ferry:{id:0,operator:r.ferry_operator,ship:r.ferry_ship,icon:'🚢',departs:r.ferry_departs,arrives:r.ferry_arrives,duration:'',economy:r.price,cabin:r.price,tag:'',tagColor:'',seatsEconomy:0,seatsCabin:0,daysOfWeek:[]},
         selectedClass:r.selected_class,origin:r.origin,destination:r.destination,date:r.date,
         passengerName:r.passenger_name,passengerId:r.passenger_id,phone:r.phone,ref:r.ref,price:r.price,
-        passengers:r.passengers||{adults:1,children:0,infants:0},
+        passengers:r.passengers||{adults:1,children:0,infants:0},cancellation_requested:r.cancellation_requested||false,cancellation_requested_at:r.cancellation_requested_at||'',
         status:r.status||'upcoming',
         departureDateTime:r.departure_datetime||''
       })))
