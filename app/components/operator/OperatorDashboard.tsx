@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useMemo } from 'react'
+import MFASettings from '@/components/operator/MFASettings'
 
 type Booking = {
   id:string; ref:string; origin:string; destination:string
@@ -489,7 +490,8 @@ export default function OperatorDashboard({user,profile,supabase}:{user:any;prof
                 </div>
               ))}
             </div>
-            <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/landing'}} style={{width:'100%',padding:'13px',borderRadius:12,border:'1px solid rgba(255,92,58,0.3)',background:'rgba(255,92,58,0.08)',color:'#ff5c3a',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.9rem',cursor:'pointer'}}>Sign Out</button>
+            <MFASettings supabase={supabase}/>
+            <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/landing'}} style={{width:'100%',marginTop:16,padding:'13px',borderRadius:12,border:'1px solid rgba(255,92,58,0.3)',background:'rgba(255,92,58,0.08)',color:'#ff5c3a',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'0.9rem',cursor:'pointer'}}>Sign Out</button>
           </div>
         )}
       </div>
