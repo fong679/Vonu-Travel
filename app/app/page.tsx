@@ -52,7 +52,7 @@ export default function Home() {
     if(!selectedFerry)return
     const price=selectedClass==='Economy'?selectedFerry.economy:selectedFerry.cabin
     const ref='VT-'+Math.floor(1000+Math.random()*9000)
-    const booking:Booking={ferry:selectedFerry,selectedClass,origin,destination,date,passengerName:name,passengerId:id,phone,ref,price}
+    const booking:Booking={ferry:selectedFerry,selectedClass,origin,destination,date,passengerName:name,passengerId:id,phone,ref,price,passengers,status:'upcoming',departureDateTime}
     setCurrentBooking(booking)
     setTrips(prev=>[booking,...prev])
     setStage('ticket')
