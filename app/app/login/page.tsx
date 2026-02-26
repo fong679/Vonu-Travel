@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -22,21 +22,15 @@ function LoginForm() {
     } else {
       const {error}=await supabase.auth.signInWithPassword({email,password})
       if(error){setMessage(error.message);setLoading(false);return}
-      // Check role
       const {data:{user}}=await supabase.auth.getUser()
       if(user){
         const {data:profile}=await supabase.from('user_profiles').select('role').eq('id',user.id).single()
         if(profile?.role==='operator'){
-          // Check MFA status
           const {data:factors}=await supabase.auth.mfa.listFactors()
           const verified=factors?.totp?.find((f:any)=>f.status==='verified')
-          if(verified){
-            // Has MFA enrolled — go verify
-            router.push('/mfa')
-          } else {
-            // No MFA yet — enroll first
-            router.push('/mfa?mode=enroll')
-          }
+          router.push(verified?'/mfa':'/mfa?mode=enroll')
+        } else if(profile?.role==='admin'){
+          router.push('/admin')
         } else {
           router.push('/')
         }
@@ -63,10 +57,16 @@ function LoginForm() {
             <label style={{fontSize:'0.72rem',textTransform:'uppercase',letterSpacing:'0.1em',color:'#7eabc5',display:'block',marginBottom:6}}>Email Address</label>
             <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" type="email" style={inp}/>
           </div>
-          <div style={{marginBottom:20}}>
+          <div style={{marginBottom:8}}>
             <label style={{fontSize:'0.72rem',textTransform:'uppercase',letterSpacing:'0.1em',color:'#7eabc5',display:'block',marginBottom:6}}>Password</label>
             <input value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" type="password" style={inp} onKeyDown={e=>e.key==='Enter'&&handleSubmit()}/>
           </div>
+
+          {!isSignUp&&(
+            <div style={{textAlign:'right',marginBottom:20}}>
+              <a href="/reset-password" style={{fontSize:'0.82rem',color:'#ff5c3a',textDecoration:'none',fontWeight:600}}>Forgot password?</a>
+            </div>
+          )}
 
           <button onClick={handleSubmit} disabled={loading}
             style={{width:'100%',padding:15,background:'#ff5c3a',border:'none',borderRadius:14,color:'white',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1rem',cursor:'pointer',boxShadow:'0 6px 24px rgba(255,92,58,0.4)',marginBottom:12,opacity:loading?0.7:1}}>
