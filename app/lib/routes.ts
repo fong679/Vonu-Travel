@@ -14,7 +14,7 @@ export type Booking = {
   origin:string; destination:string; date:string
   passengerName:string; passengerId:string; phone:string
   ref:string; price:number; passengers:Passenger
-  status:'upcoming'|'completed'|'cancelled'
+  status:'upcoming'|'completed'|'cancelled';cancellation_requested?:boolean;cancellation_requested_at?:string
   departureDateTime:string
 }
 
