@@ -41,7 +41,7 @@ export default function Home() {
     const {data}=await supabase.from('bookings').select('*').eq('user_id',userId).order('created_at',{ascending:false})
     if(data){
       setTrips(data.map((r:any)=>({
-        ferry:{id:0,operator:r.ferry_operator,ship:r.ferry_ship,icon:'🚢',departs:r.ferry_departs,arrives:r.ferry_arrives,duration:'',economy:r.price,cabin:r.price,tag:'',tagColor:''},
+        ferry:{id:0,operator:r.ferry_operator,ship:r.ferry_ship,icon:'🚢',departs:r.ferry_departs,arrives:r.ferry_arrives,duration:'',economy:r.price,cabin:r.price,tag:'',tagColor:'',seatsEconomy:0,seatsCabin:0,daysOfWeek:[]},
         selectedClass:r.selected_class,origin:r.origin,destination:r.destination,date:r.date,
         passengerName:r.passenger_name,passengerId:r.passenger_id,phone:r.phone,ref:r.ref,price:r.price,passengers:r.passengers||{adults:1,children:0,infants:0},status:r.status||'upcoming',departureDateTime:r.departure_datetime||''
       })))
