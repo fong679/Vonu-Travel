@@ -509,3 +509,4 @@ export default function OperatorDashboard({user,profile,supabase}:{user:any;prof
     </div>
   )
 }
+// MFA section is handled via /mfa page
