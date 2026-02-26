@@ -22,7 +22,15 @@ function LoginForm() {
     }else{
       const {error}=await supabase.auth.signInWithPassword({email,password})
       if(error)setMessage(error.message)
-      else router.push('/')
+      else {
+        const supabaseClient = createClient()
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabaseClient.from('user_profiles').select('role').eq('id', user.id).single()
+          if (profile?.role === 'operator') router.push('/operator')
+          else router.push('/')
+        }
+      }
     }
     setLoading(false)
   }
