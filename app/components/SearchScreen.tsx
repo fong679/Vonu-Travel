@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { PORTS, Passenger, formatDate, getRoutesForDate } from '@/lib/routes'
+import AvatarIcon from '@/components/AvatarIcon'
 
 interface Props {
   origin:string; setOrigin:(v:string)=>void
@@ -46,7 +47,7 @@ export default function SearchScreen({origin,setOrigin,destination,setDestinatio
         <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:text}}>Vonu<span style={{color:'#ff5c3a'}}>-</span>Travel</div>
         <div style={{display:'flex',gap:10,alignItems:'center'}}>
           <div style={{width:36,height:36,borderRadius:'50%',background:card,border:`1px solid ${border}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer'}}>🔔</div>
-          <a href="/login" style={{width:36,height:36,borderRadius:'50%',background:user?'rgba(255,92,58,0.2)':card,border:`1px solid ${user?'rgba(255,92,58,0.5)':border}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',cursor:'pointer',textDecoration:'none'}}>{user?'✓':'👤'}</a>
+          <AvatarIcon user={user} theme={theme}/>
         </div>
       </nav>
 

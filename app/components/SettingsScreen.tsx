@@ -86,7 +86,7 @@ export default function SettingsScreen({user,theme,toggleTheme,supabase}:{user:a
           <div style={{background:card,border:`1px solid ${border}`,borderRadius:14,overflow:'hidden'}}>
             <Row icon="🚢" label="Vonu-Travel" right="v1.0.0"/>
             <Row icon="🇫🇯" label="Ferry routes across Fiji" right=""/>
-            <Row icon="📱" label="Installed as PWA" right="✓"/>
+            
           </div>
         </div>
         {user?(
