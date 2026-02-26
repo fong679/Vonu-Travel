@@ -90,7 +90,7 @@ export default function LandingPage() {
 
       {/* Swipe hint */}
       {swipeHint && (
-        <div style={{ position: 'absolute', top: '50%', left: 16, transform: 'translateY(-50%)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, animation: 'pulse 1.5s infinite' }}>
+        <div style={{ position: 'absolute', top: '15%', left: 16, transform: 'translateY(-50%)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, animation: 'pulse 1.5s infinite' }}>
           <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '8px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <span style={{ fontSize: '1.2rem' }}>👉</span>
             <span style={{ fontSize: '0.65rem', color: 'white', fontWeight: 600, textAlign: 'center', lineHeight: 1.3 }}>Swipe right<br/>for schedules</span>
@@ -100,7 +100,7 @@ export default function LandingPage() {
 
       {/* Schedules peek indicator */}
       <div onClick={() => router.push('/schedules')}
-        style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '0 12px 12px 0', padding: '12px 8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        style={{ position: 'absolute', left: 0, top: '15%', zIndex: 10, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '0 12px 12px 0', padding: '12px 8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
         <span style={{ fontSize: '1rem' }}>🚢</span>
         <span style={{ fontSize: '0.6rem', color: 'white', fontWeight: 600, writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: '0.05em' }}>SCHEDULES</span>
         <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem' }}>›</span>
