@@ -22,7 +22,7 @@ function MFAFlow() {
     const { data: factors } = await supabase.auth.mfa.listFactors()
     const totp = factors?.totp || []
     const verified = totp.find(f => f.status === 'verified')
-    const unverified = totp.find(f => f.status === 'unverified')
+    const unverified = totp.find(f => (f.status as string) === 'unverified')
 
     if (mode === 'enroll' || (!verified && !unverified)) {
       // Need to enroll
