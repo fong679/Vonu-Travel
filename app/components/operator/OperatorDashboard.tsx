@@ -55,6 +55,9 @@ export default function OperatorDashboard({user,profile,supabase}:{user:any;prof
   }
 
   async function sendNotification(userId:string,title:string,message:string,type:string,bookingRef:string){
+    // Remove any existing unread notifications for this booking+type to prevent duplicates
+    await supabase.from('notifications').delete()
+      .eq('user_id',userId).eq('booking_ref',bookingRef).eq('type',type).eq('read',false)
     await supabase.from('notifications').insert({
       user_id:userId,title,message,type,booking_ref:bookingRef,read:false
     })

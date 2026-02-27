@@ -279,6 +279,13 @@ export default function MyTripsScreen({trips,user,theme,onReload}:{trips:Booking
       {/* Notifications */}
       {notifications.length>0&&(
         <div style={{padding:'12px 24px 0'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+            <div style={{fontSize:'0.72rem',textTransform:'uppercase',letterSpacing:'0.1em',color:sub}}>🔔 {notifications.length} Notification{notifications.length>1?'s':''}</div>
+            <button onClick={async()=>{
+              await supabase.from('notifications').update({read:true}).eq('user_id',user.id).eq('read',false)
+              setNotifications([])
+            }} style={{fontSize:'0.75rem',color:'#ff5c3a',background:'none',border:'none',cursor:'pointer',fontWeight:600}}>Clear all</button>
+          </div>
           {notifications.map(n=>(
             <div key={n.id} style={{background:'rgba(255,92,58,0.08)',border:'1px solid rgba(255,92,58,0.25)',borderRadius:12,padding:'12px 14px',marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
               <div style={{flex:1}}>
