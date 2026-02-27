@@ -171,7 +171,22 @@ export default function MyTripsScreen({trips,user,theme,onReload}:{trips:Booking
   const sub=dark?'#7eabc5':'#5a7a8a'
   const supabase=createClient()
 
-  useEffect(()=>{setLocalTrips(trips)},[trips])
+  useEffect(()=>{
+    if(trips.length===0) return
+    setLocalTrips(prev=>{
+      if(prev.length===0) return trips
+      // Merge fresh data but keep realtime status updates
+      return trips.map(fresh=>{
+        const existing=prev.find(p=>p.ref===fresh.ref)
+        if(!existing) return fresh
+        return {
+          ...fresh,
+          status:(existing as any).status!==fresh.status?(existing as any).status:fresh.status,
+          cancellation_requested:(existing as any).cancellation_requested??fresh.cancellation_requested
+        }
+      })
+    })
+  },[trips])
 
   useEffect(()=>{
     if(!user) return
@@ -181,8 +196,18 @@ export default function MyTripsScreen({trips,user,theme,onReload}:{trips:Booking
       .channel('booking-updates')
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'bookings',filter:`user_id=eq.${user.id}`},
         (payload:any)=>{
-          setLocalTrips(prev=>prev.map(t=>t.id===payload.new.id?{...t,...payload.new,ferry:t.ferry}:t))
-          if(payload.new.status==='cancelled'&&payload.old.status!=='cancelled'){
+          const updated=payload.new
+          setLocalTrips(prev=>prev.map(t=>{
+            if((t as any).id===updated.id||t.ref===updated.ref){
+              return {...t,
+                status:updated.status,
+                cancellation_requested:updated.cancellation_requested,
+                cancellation_requested_at:updated.cancellation_requested_at
+              }
+            }
+            return t
+          }))
+          if(updated.status==='cancelled'&&payload.old.status!=='cancelled'){
             loadNotifications()
           }
         }
