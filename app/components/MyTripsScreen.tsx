@@ -35,7 +35,7 @@ function Countdown({departureDateTime}:{departureDateTime:string}) {
   )
 }
 
-type BookingWithCancel = Booking & {cancellation_requested?:boolean;cancellation_requested_at?:string;status?:string}
+type BookingWithCancel = Booking & {id?:string;cancellation_requested?:boolean;cancellation_requested_at?:string;status?:string}
 
 function BookingCard({b,dark,onRequestCancel,onUndoCancel}:{b:BookingWithCancel;dark:boolean;onRequestCancel:(ref:string)=>void;onUndoCancel:(ref:string)=>void}) {
   const [expanded,setExpanded]=useState(false)
