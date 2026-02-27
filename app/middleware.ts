@@ -3,13 +3,18 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('sb-tsluwjhhlkfuhexrhsbq-auth-token')?.value ||
-                request.cookies.get('sb-access-token')?.value
 
-  // Always show landing to guests on root
-  if (pathname === '/' && !token) {
+  // Only redirect root for guests
+  if (pathname !== '/') return NextResponse.next()
+
+  const cookies = request.cookies
+  const hasSession = cookies.get('sb-access-token') ||
+    [...cookies.getAll()].some(c => c.name.includes('auth-token') && c.value)
+
+  if (!hasSession) {
     return NextResponse.redirect(new URL('/landing', request.url))
   }
+
   return NextResponse.next()
 }
 

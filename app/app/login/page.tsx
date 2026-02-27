@@ -17,25 +17,47 @@ function LoginForm() {
     setLoading(true);setMessage('')
     if(isSignUp){
       const {error}=await supabase.auth.signUp({email,password})
-      if(error)setMessage(error.message)
+      if(error) setMessage(error.message)
       else setMessage('Check your email to confirm your account!')
-    } else {
-      const {error}=await supabase.auth.signInWithPassword({email,password})
-      if(error){setMessage(error.message);setLoading(false);return}
-      const {data:{user}}=await supabase.auth.getUser()
-      if(user){
-        const {data:profile}=await supabase.from('user_profiles').select('role').eq('id',user.id).single()
-        if(profile?.role==='operator'){
-          const {data:factors}=await supabase.auth.mfa.listFactors()
-          const verified=factors?.totp?.find((f:any)=>f.status==='verified')
-          router.push(verified?'/mfa':'/mfa?mode=enroll')
-        } else if(profile?.role==='admin'){
-          router.push('/admin')
-        } else {
-          router.push('/')
-        }
-      }
+      setLoading(false);return
     }
+
+    // Sign in
+    const {error:signInError}=await supabase.auth.signInWithPassword({email,password})
+    if(signInError){setMessage(signInError.message);setLoading(false);return}
+
+    // Get user
+    const {data:{user},error:userError}=await supabase.auth.getUser()
+    if(userError||!user){setMessage('Could not get user session');setLoading(false);return}
+
+    // Get profile
+    const {data:profile,error:profileError}=await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('id',user.id)
+      .single()
+
+    if(profileError||!profile){
+      // No profile found — treat as passenger
+      router.push('/');setLoading(false);return
+    }
+
+    if(profile.role==='admin'){
+      router.push('/admin');setLoading(false);return
+    }
+
+    if(profile.role==='operator'){
+      // Check MFA
+      const {data:factors,error:mfaError}=await supabase.auth.mfa.listFactors()
+      if(mfaError){router.push('/operator');setLoading(false);return}
+      const verified=factors?.totp?.find((f:any)=>f.status==='verified')
+      if(verified) router.push('/mfa')
+      else router.push('/mfa?mode=enroll')
+      setLoading(false);return
+    }
+
+    // Default passenger
+    router.push('/')
     setLoading(false)
   }
 
@@ -44,13 +66,15 @@ function LoginForm() {
   return (
     <div style={{minHeight:'100vh',background:'#071e30',display:'flex',flexDirection:'column',fontFamily:'DM Sans,sans-serif'}}>
       <div style={{padding:'20px 24px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',alignItems:'center',gap:12}}>
-        <a href="/landing" style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1rem',cursor:'pointer',textDecoration:'none',color:'white'}}>←</a>
+        <a href="/landing" style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1rem',textDecoration:'none',color:'white'}}>←</a>
         <div style={{fontFamily:'Syne,sans-serif',fontWeight:800,fontSize:'1.3rem',color:'white'}}>Vonu<span style={{color:'#ff5c3a'}}>-</span>Travel</div>
       </div>
       <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'24px'}}>
         <div style={{width:'100%',maxWidth:400}}>
           <p style={{fontSize:'0.7rem',fontWeight:500,letterSpacing:'0.12em',textTransform:'uppercase',color:'#ff5c3a',marginBottom:6}}>Welcome</p>
-          <h1 style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.7rem',lineHeight:1.15,color:'white',marginBottom:8}}>{isSignUp?'Create your account':'Sign in to your account'}</h1>
+          <h1 style={{fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.7rem',lineHeight:1.15,color:'white',marginBottom:8}}>
+            {isSignUp?'Create your account':'Sign in to your account'}
+          </h1>
           <p style={{fontSize:'0.85rem',color:'#7eabc5',marginBottom:28}}>Book and manage your Fiji ferry trips</p>
 
           <div style={{marginBottom:12}}>
@@ -89,6 +113,6 @@ function LoginForm() {
   )
 }
 
-export default function LoginPage() {
+export default function LoginPage(){
   return <Suspense><LoginForm/></Suspense>
 }
